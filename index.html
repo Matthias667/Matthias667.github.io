@@ -1,0 +1,1705 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test wiedzy</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+
+        #start-container,
+        #question-container {
+            text-align: center;
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            margin: 5px;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .answer {
+            margin-top: 10px;
+        }
+
+        .correct {
+            color: green;
+        }
+
+        .incorrect {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Przycisk rozpoczęcia testu -->
+    <div id="start-container">
+        <button id="start-btn" onclick="startTest()">Rozpocznij test</button>
+    </div>
+
+     <!-- Kontener pytań i odpowiedzi -->
+     <div id="question-container">
+        <p id="question-text"></p>
+        <div id="answers-container"></div>
+        <button id="next-btn" onclick="nextQuestion()" style="display: none;">Dalej</button>
+        <button id="restart-btn" onclick="restartTest()" style="display: none;">Restart</button>
+        <p id="score"></p>
+        <div id="result-container" style="display: none;">
+            <h3>Podsumowanie:</h3>
+            <button id="show-answers-btn" onclick="showAnswers()">Zobacz odpowiedzi</button>
+            <ul id="result-list" style="display: none;"></ul>
+        </div>
+        <p id="timer"></p>
+    </div><!DOCTYPE html>
+    <html lang="pl">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Test wiedzy</title>
+        <style>
+                  html, body {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+            body {
+                font-family: Arial, sans-serif;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                background-color: #f0f0f0;
+            }
+    
+            #start-container,
+            #question-container {
+                text-align: center;
+                background: #fff;
+                border-radius: 8px;
+                padding: 20px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+    
+            button {
+                margin: 5px;
+                padding: 10px;
+                border: none;
+                border-radius: 4px;
+                background-color: #d3e4b4;
+                color: rgb(0, 0, 0);
+                cursor: pointer;
+                font-size: 16px;
+            }
+    
+            button:hover {
+                background-color: #d1e7ff;
+            }
+    
+            .answer {
+                margin-top: 10px;
+            }
+    
+            .correct {
+                color: green;
+            }
+    
+            .incorrect {
+                color: red;
+            }
+        </style>
+    </head>
+    <body>
+    
+        <!-- Przycisk rozpoczęcia testu -->
+        <div id="start-container">
+            <button id="start-btn" onclick="startTest()">Rozpocznij test</button>
+        </div>
+    
+         <!-- Kontener pytań i odpowiedzi -->
+         <div id="question-container">
+            <p id="question-text"></p>
+            <div id="answers-container"></div>
+            <button id="next-btn" onclick="nextQuestion()" style="display: none;">Dalej</button>
+            <button id="restart-btn" onclick="restartTest()" style="display: none;">Restart</button>
+            <p id="score"></p>
+            <div id="result-container" style="display: none;">
+                <h3>Podsumowanie:</h3>
+                <button id="show-answers-btn" onclick="showAnswers()">Zobacz odpowiedzi</button>
+                <ul id="result-list" style="display: none;"></ul>
+            </div>
+            <p id="timer"></p>
+        </div>
+        <script>
+        // Dane pytań w formacie JSON zapisane bezpośrednio w HTML
+        const questions = [
+    {
+        "question": "Przedmiotem prawa autorskiego jest:",
+        "answers": [
+            "działalność o indywidualnym charakterze",
+            "każdy przejaw działalności twórczej o indywidualnym charakterze",
+            "każda działalność twórcza"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "Warunkiem zaistnienia praw autorskich jest:",
+        "answers": [
+            "określona wartość utworu",
+            "właściwe przeznaczenie i sposób wyrażenia utworu",
+            "ustalenie utworu w jakiejkolwiek postaci"
+        ],
+        "correct": 2
+    },
+    {
+        "question": "Nie są przedmiotem prawa autorskiego utwory:",
+        "answers": [
+            "odkrycia i idee",
+            "plastyczne",
+            "fotograficzne"
+        ],
+        "correct": 0
+    },
+    {
+        "question": "Utwór jest przedmiotem prawa autorskiego od chwili ustalenia:",
+        "answers": [
+            "ale musi mieć postać ukończoną",
+            "chociażby miał postać nieukończoną",
+            "ale należy go zarejestrować"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "Opracowanie cudzego utworu, w szczególności tłumaczenie, przeróbka, adaptacja:",
+        "answers": [
+            "jest przedmiotem prawa autorskiego",
+            "nie jest przedmiotem prawa autorskiego",
+            "jest przedmiotem prawa autorskiego w zależności od opracowania"
+        ],
+        "correct": 0
+    },
+    {
+        "question": "Rozporządzanie i korzystanie z opracowania zależy od zezwolenia:",
+        "answers": [
+            "zgody organizacji zbiorowego zarządzania prawami autorskimi",
+            "ministerstwa właściwego ds. kultury i sztuki",
+            "twórcy utworu pierwotnego"
+        ],
+        "correct": 2
+    },
+    {
+        "question": "Twórca utworu pierwotnego może cofnąć zezwolenie, jeżeli opracowanie nie zostało rozpowszechnione w ciągu:",
+        "answers": [
+            "trzech lat od jego udzielenia",
+            "pięciu lat od jego udzielenia",
+            "pięciu lat od powstania utworu"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "Jeżeli twórca utworu pierwotnego cofnął zgodę po upływie czasu wymaganego do rozpowszechnienia opracowania, to:",
+        "answers": [
+            "wypłacone twórcy wynagrodzenie nie podlega zwrotowi",
+            "wypłacone twórcy wynagrodzenie podlega zwrotowi",
+            "wypłacone twórcy wynagrodzenie może podlegać zwrotowi"
+        ],
+        "correct": 0
+    },
+    {
+        "question": "Utworu, który powstał w wyniku inspiracji cudzym utworem:",
+        "answers": [
+            "uważa się za opracowanie",
+            "nie uważa się za opracowanie",
+            "można uważać za opracowanie, w zależności od tego utworu"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "Na egzemplarzach opracowania należy wymienić:",
+        "answers": [
+            "twórcę i tytuł utworu pierwotnego",
+            "tylko twórcę utworu pierwotnego",
+            "tylko tytuł utworu pierwotnego"
+        ],
+        "correct": 0
+    },
+    {
+        "question": "Zbiory, antologie, wybory, bazy danych spełniające cechy utworu są przedmiotem prawa autorskiego:",
+        "answers": [
+            "w każdym przypadku",
+            "o ile przyjęty w nich dobór, układ lub zestawienie mają twórczy charakter",
+            "jeżeli zawierają inne utwory"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "Przedmiot prawa autorskiego stanowią:",
+        "answers": [
+            "akty normatywne lub ich urzędowe projekty",
+            "urzędowe dokumenty, materiały, znaki i symbole",
+            "artykuły prasowe"
+        ],
+        "correct": 2
+    },
+    {
+        "question": "Do utworów, które zostały opublikowane równocześnie na terytorium Rzeczypospolitej Polskiej i za granicą:",
+        "answers": [
+            "stosuje się przepisy ustawy o prawach autorskich",
+            "nie stosuje się przepisów ustawy o prawach autorskich",
+            "można stosować przepisy ustawy o prawach autorskich, w zależności od kraju, w którym równocześnie opublikowano utwór"
+        ],
+        "correct": 0
+    },
+    {
+        "question": "Utworem opublikowanym jest utwór, który:",
+        "answers": [
+            "bez zgody twórcy został zwielokrotniony i którego egzemplarze zostały udostępnione publicznie",
+            "za zezwoleniem twórcy został zwielokrotniony i którego egzemplarze zostały udostępnione publicznie",
+            "za zezwoleniem twórcy został tylko zwielokrotniony"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "Opublikowaniem równoczesnym utworu jest opublikowanie utworu na terytorium Rzeczypospolitej Polskiej i za granicą w okresie:",
+        "answers": [
+            "siedmiu dni od jego pierwszej publikacji",
+            "dwudziestu dni od jego pierwszej publikacji",
+            "trzydziestu dni od jego pierwszej publikacji"
+        ],
+        "correct": 2
+    },
+    {
+        "question": "Utworem rozpowszechnionym jest utwór, który:",
+        "answers": [
+            "za zezwoleniem twórcy został w jakikolwiek sposób udostępniony publicznie",
+            "za zezwoleniem twórcy został w odpowiedni sposób udostępniony publicznie",
+            "bez zezwolenia twórcy został w jakikolwiek sposób udostępniony publicznie"
+        ],
+        "correct": 0
+    },
+    {
+        "question": "Najmem egzemplarzy utworu jest:",
+        "answers": [
+            "ich przekazanie do nieograniczonego czasowo korzystania w celu tylko bezpośredniego uzyskania korzyści majątkowej",
+            "ich przekazanie do ograniczonego czasowo korzystania w celu bezpośredniego lub pośredniego uzyskania korzyści majątkowej",
+            "ich przekazanie do ograniczonego czasowo korzystania w celu tylko pośredniego uzyskania korzyści majątkowej"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "Użyczeniem egzemplarzy utworu jest:",
+        "answers": [
+            "ich przekazanie do nieograniczonego czasowo korzystania, mające na celu tylko bezpośrednie uzyskanie korzyści majątkowej",
+            "ich przekazanie do ograniczonego czasowo korzystania, mające na celu tylko pośrednie uzyskanie korzyści majątkowej",
+            "ich przekazanie do ograniczonego czasowo korzystania, niemające na celu bezpośredniego lub pośredniego uzyskania korzyści majątkowej"
+        ],
+        "correct": 2
+    },
+    {
+        "question": "Prawo autorskie:",
+        "answers": [
+            "co do zasady przysługuje twórcy",
+            "zawsze przysługuje twórcy",
+            "nie przysługuje twórcy"
+        ],
+        "correct": 0
+    },
+    {
+        "question": "Dopóki twórca nie ujawnił swojego autorstwa, w wykonywaniu prawa autorskiego zastępuje go:",
+        "answers": [
+            "producent i wydawca",
+            "producent lub wydawca",
+            "producent, wydawca i właściwa organizacja zbiorowego zarządzania prawami autorskimi"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "Współtwórcom przysługuje prawo autorskie:",
+        "answers": [
+            "wspólnie",
+            "łącznie",
+            "kumulatywnie"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "Każdy ze współtwórców może żądać określenia wielkości udziałów przez:",
+        "answers": [
+            "właściwą organizację zbiorowego zarządzania prawami autorskimi",
+            "sąd",
+            "ministra właściwego ds. kultury i sztuki"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "Do wykonywania prawa autorskiego do całości utworu:",
+        "answers": [
+            "nie potrzebna jest zgoda wszystkich współtwórców",
+            "może być potrzebna zgoda wszystkich współtwórców, w zależności od utworu",
+            "potrzebna jest zgoda wszystkich współtwórców"
+        ],
+        "correct": 2
+    },
+    {
+        "question": "Autorskie prawa majątkowe do utworu zbiorowego, w szczególności do encyklopedii lub publikacji periodycznej, przysługują:",
+        "answers": [
+            "producentowi lub wydawcy, a do poszczególnych części mających samodzielne znaczenie - ich twórcom",
+            "producentowi i wydawcy",
+            "tylko twórcom poszczególnych części mających samodzielne znaczenie"
+        ],
+        "correct": 0
+    },
+    {
+        "question": "Pracodawca nabywa autorskie prawa majątkowe do utworu stworzonego przez pracownika w ramach stosunku pracy:",
+        "answers": [
+            "z chwilą przyjęcia utworu",
+            "z chwilą ustalenia utworu",
+            "z chwilą podpisania umowy o pracę"
+        ],
+        "correct": 0
+    },
+{
+    "question": "Twórca może wyznaczyć pracodawcy termin na rozpowszechnienie utworu z takim skutkiem, że prawa powracają do twórcy, jeżeli w okresie:",
+    "answers": [
+        "roku od daty przyjęcia utworu, nie przystąpiono do jego rozpowszechniania",
+        "dwóch lat od daty przyjęcia utworu, nie przystąpiono do jego rozpowszechniania",
+        "trzech lat od daty przyjęcia utworu, nie przystąpiono do jego rozpowszechniania"
+    ],
+    "correct": 1
+},
+{
+    "question": "Pierwszeństwo instytucji naukowej do opublikowania utworu pracownika naukowego wygasa, jeżeli:",
+    "answers": [
+        "utwór nie został opublikowany w ciągu dwóch lat od przyjęcia",
+        "utwór nie został opublikowany w ciągu trzech lat od przyjęcia",
+        "utwór nie został opublikowany w ciągu pięciu lat od przyjęcia"
+    ],
+    "correct": 1
+},
+{
+    "question": "Pierwszeństwo w opublikowaniu pracy dyplomowej studenta przysługuje:",
+    "answers": [
+        "studentowi",
+        "uczelni wyższej",
+        "promotorowi pracy"
+    ],
+    "correct": 1
+},
+{
+    "question": "Autorskie prawa osobiste:",
+    "answers": [
+        "nigdy nie wygasają",
+        "wygasają po 70 latach od śmierci twórcy",
+        "wygasają z chwilą śmierci twórcy"
+    ],
+    "correct": 0
+},
+{
+    "question": "Autorskie prawa majątkowe:",
+    "answers": [
+        "podlegają egzekucji dopóki służą twórcy",
+        "nie podlegają egzekucji, dopóki służą twórcy",
+        "nie podlegają egzekucji w żadnym przypadku"
+    ],
+    "correct": 1
+},
+    {
+        "question": "Twórcy i jego spadkobiercom, w przypadku dokonanych zawodowo odsprzedaży oryginalnych egzemplarzy utworu plastycznego lub fotograficznego, przysługuje prawo do wynagrodzenia, którego wartość zależna jest od wartości sprzedaży i mieści się w przedziale:",
+        "answers": [
+            "od 0,25 % do 5 % ceny sprzedaży",
+            "od 1 % do 5 % ceny sprzedaży",
+            "od 3 % do 5 % ceny sprzedaży"
+        ],
+        "correct": 0
+    },
+    {
+        "question": "Kopie uznane za oryginalne egzemplarze utworu, jeżeli zostały wykonane osobiście, w ograniczonej ilości, przez twórcę lub pod jego nadzorem, ponumerowane, podpisane lub w inny sposób przez niego oznaczone:",
+        "answers": [
+            "nie są oryginalnymi egzemplarzami utworu",
+            "są oryginalnymi egzemplarzami utworu",
+            "są nieoryginalnymi egzemplarzami utworu"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "Za dokonaną zawodowo odsprzedaż rękopisów utworów literackich i muzycznych twórcom i ich spadkobiercom przysługuje prawo do wynagrodzenia w wysokości:",
+        "answers": [
+            "2 % ceny",
+            "3 % ceny",
+            "5 % ceny"
+        ],
+        "correct": 0
+    },
+    {
+        "question": "Producenci i importerzy magnetofonów, magnetowidów, kserokopiarek, skanerów, czystych nośników służących do utrwalania są obowiązani do uiszczania organizacjom zbiorowego zarządzania opłat w wysokości nieprzekraczającej:",
+        "answers": [
+            "3 % kwoty należnej z tytułu sprzedaży tych urządzeń i nośników",
+            "5 % kwoty należnej z tytułu sprzedaży tych urządzeń i nośników",
+            "6 % kwoty należnej z tytułu sprzedaży tych urządzeń i nośników"
+        ],
+        "correct": 0
+    },
+    {
+        "question": "Posiadacze urządzeń reprograficznych, którzy prowadzą działalność gospodarczą w zakresie zwielokrotniania utworów dla własnego użytku osobistego osób trzecich, są obowiązani do uiszczania, za pośrednictwem organizacji zbiorowego zarządzania prawami autorskimi lub prawami pokrewnymi, opłat w wysokości:",
+        "answers": [
+            "do 3 % wpływów z tego tytułu na rzecz twórców oraz wydawców",
+            "do 5 % wpływów z tego tytułu na rzecz twórców oraz wydawców",
+            "do 10 % wpływów z tego tytułu na rzecz twórców oraz wydawców"
+        ],
+        "correct": 0
+    },
+    {
+        "question": "Bez zezwolenia twórcy:",
+        "answers": [
+            "nie wolno nieodpłatnie korzystać z już rozpowszechnionego utworu w zakresie własnego użytku osobistego",
+            "wolno nieodpłatnie korzystać z już rozpowszechnionego utworu w zakresie własnego użytku osobistego",
+            "wolno odpłatnie korzystać z już rozpowszechnionego utworu w zakresie własnego użytku osobistego"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "Zakres własnego użytku osobistego obejmuje korzystanie z pojedynczych egzemplarzy utworów przez:",
+        "answers": [
+            "tylko przez jedną osobę",
+            "tylko przez krąg osób pozostających w związku pokrewieństwa lub powinowactwa",
+            "krąg osób pozostających w związku osobistym, w szczególności pokrewieństwa, powinowactwa lub stosunku towarzyskiego"
+        ],
+        "correct": 2
+    },
+    {
+        "question": "Wolno rozpowszechniać za pomocą anteny zbiorowej oraz sieci kablowej utwory nadawane przez inną organizację radiową lub telewizyjną drogą satelitarną albo naziemną, jeżeli następuje to w ramach równoczesnego, integralnego i nieodpłatnego rozpowszechniania programów radiowych lub telewizyjnych i przeznaczone jest do oznaczonego grona odbiorców znajdujących się:",
+        "answers": [
+            "tylko w jednym budynku",
+            "w jednym budynku lub w domach jednorodzinnych obejmujących do 50 gospodarstw domowych",
+            "w jednym budynku lub w domach jednorodzinnych obejmujących do 100 gospodarstw domowych"
+        ],
+        "correct": 2
+    },
+  {
+    "question": "Jeżeli urządzenia służące do odbioru programu radiowego lub telewizyjnego umieszczone w miejscu ogólnie dostępnym służą do odbierania nadawanych utworów, to ich posiadacze:",
+    "answers": [
+      "mogą je nieodpłatnie odbierać, jeżeli nie łączy się z tym osiąganie korzyści majątkowych",
+      "nie mogą ich nieodpłatnie odbierać",
+      "mogą je nieodpłatnie odbierać, jeżeli łączy się z tym osiąganie korzyści majątkowych"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Już rozpowszechnione sprawozdania o aktualnych wydarzeniach:",
+    "answers": [
+      "wolno odpłatnie rozpowszechniać w celach informacyjnych w prasie, radiu i telewizji",
+      "wolno nieodpłatnie rozpowszechniać w celach informacyjnych tylko w prasie",
+      "wolno nieodpłatnie rozpowszechniać w celach informacyjnych w prasie, radiu i telewizji"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "W sprawozdaniach o aktualnych wydarzeniach:",
+    "answers": [
+      "wolno przytaczać utwory udostępniane podczas tych wydarzeń",
+      "nie wolno przytaczać utworów udostępnianych podczas tych wydarzeń",
+      "wolno przytaczać utwory udostępniane podczas tych wydarzeń za zgodą autorów tych sprawozdań"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Instytucje naukowe i oświatowe w celach dydaktycznych lub prowadzenia własnych badań:",
+    "answers": [
+      "nie mogą korzystać z rozpowszechnionych utworów w oryginale i w tłumaczeniu oraz sporządzać w tym celu egzemplarze fragmentów rozpowszechnionego utworu",
+      "mogą korzystać z rozpowszechnionych utworów w oryginale i w tłumaczeniu oraz sporządzać w tym celu egzemplarze fragmentów rozpowszechnionego utworu",
+      "mogą korzystać z rozpowszechnionych utworów tylko w oryginale oraz sporządzać w tym celu egzemplarze fragmentów rozpowszechnionego utworu"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "W zakresie uzasadnionym wyjaśnianiem, analizą krytyczną, nauczaniem lub prawami gatunku twórczości:",
+    "answers": [
+      "wolno przytaczać w utworach stanowiących samoistną całość tylko urywki rozpowszechnionych utworów",
+      "nie wolno przytaczać w utworach stanowiących samoistną całość urywków rozpowszechnionych utworów lub drobnych utworów w całości",
+      "wolno przytaczać w utworach stanowiących samoistną całość urywki rozpowszechnionych utworów lub drobne utwory w całości"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "W celach dydaktycznych i naukowych:",
+    "answers": [
+      "nie wolno zamieszczać w podręcznikach i wypisach rozpowszechnionych drobnych utworów lub fragmentów większych utworów",
+      "wolno zamieszczać w podręcznikach i wypisach rozpowszechnione drobne utwory lub fragmenty większych utworów",
+      "wolno zamieszczać w podręcznikach i wypisach rozpowszechnione tylko fragmenty większych utworów"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Podczas ceremonii religijnych, imprez szkolnych i akademickich lub oficjalnych uroczystości państwowych, jeżeli nie łączy się z tym osiąganie pośrednio lub bezpośrednio korzyści majątkowych i artyści wykonawcy nie otrzymują wynagrodzenia:",
+    "answers": [
+      "wolno nieodpłatnie wykonywać publicznie rozpowszechnione utwory",
+      "nie wolno nieodpłatnie wykonywać publicznie rozpowszechnionych utworów",
+      "wolno nieodpłatnie wykonywać nie rozpowszechnione utwory"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Z już rozpowszechnionych utworów dla dobra osób niepełnosprawnych, jeżeli to korzystanie odnosi się bezpośrednio do ich upośledzenia, nie ma zarobkowego charakteru i jest podejmowane w rozmiarze wynikającym z natury upośledzenia:",
+    "answers": [
+      "nie wolno korzystać",
+      "wolno odpłatnie korzystać",
+      "wolno nieodpłatnie korzystać"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "Z utworów w związku z prezentacją lub naprawą sprzętu:",
+    "answers": [
+      "wolno nieodpłatnie korzystać",
+      "nie wolno korzystać",
+      "wolno odpłatnie korzystać"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Z utworu w postaci obiektu budowlanego, jego rysunku, planu lub innego ustalenia, w celu odbudowy lub remontu obiektu budowlanego:",
+    "answers": [
+      "nie wolno korzystać",
+      "wolno korzystać",
+      "można korzystać za zgodą autora utworu"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Można korzystać z utworów w granicach dozwolonego użytku:",
+    "answers": [
+      "pod warunkiem wymienienia imienia i nazwiska twórcy oraz źródła",
+      "bez konieczności spełnienia jakichkolwiek warunków",
+      "pod warunkiem wymienienia tylko źródła"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Autorskie prawa majątkowe gasną z upływem lat:",
+    "answers": [
+      "pięćdziesięciu od śmierci twórcy",
+      "siedemdziesięciu od śmierci twórcy",
+      "osiemdziesięciu od śmierci twórcy"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Autorskie prawa majątkowe w odniesieniu do utworów współautorskich gasną z upływem lat:",
+    "answers": [
+      "pięćdziesięciu od śmierci współtwórcy, który przeżył pozostałych",
+      "siedemdziesięciu od śmierci współtwórcy, który przeżył pozostałych",
+      "osiemdziesięciu od śmierci współtwórcy, który przeżył pozostałych"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Autorskie prawa majątkowe w odniesieniu do utworu, którego twórca nie jest znany gasną z upływem lat:",
+    "answers": [
+      "pięćdziesięciu od daty pierwszego rozpowszechnienia",
+      "siedemdziesięciu od daty pierwszego rozpowszechnienia",
+      "osiemdziesięciu od daty pierwszego rozpowszechnienia"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Autorskie prawa majątkowe w odniesieniu do utworu audiowizualnego gasną z upływem lat:",
+    "answers": [
+      "czterdziestu od śmierci najpóźniej zmarłej z wymienionych osób: głównego reżysera, autora scenariusza, autora dialogów, kompozytora muzyki skomponowanej do utworu audiowizualnego",
+      "pięćdziesięciu od śmierci najpóźniej zmarłej z wymienionych osób: głównego reżysera, autora scenariusza, autora dialogów, kompozytora muzyki skomponowanej do utworu audiowizualnego",
+      "siedemdziesięciu od śmierci najpóźniej zmarłej z wymienionych osób: głównego reżysera, autora scenariusza, autora dialogów, kompozytora muzyki skomponowanej do utworu audiowizualnego"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "Czas trwania autorskich praw majątkowych:",
+    "answers": [
+      "liczy się w latach pełnych następujących po roku, w którym nastąpiło zdarzenie, od którego zaczyna się bieg terminów",
+      "liczy się daty kiedy nastąpiło zdarzenie, od którego zaczyna się bieg terminów",
+      "nie liczy się w latach pełnych następujących po roku, w którym nastąpiło zdarzenie, od którego zaczyna się bieg terminów"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Producenci lub wydawcy egzemplarzy utworów literackich, muzycznych, plastycznych, fotograficznych i kartograficznych, nie korzystających z ochrony autorskich praw majątkowych, są obowiązani do przekazywania na rzecz Funduszu Promocji Twórczości wpłaty wynoszącej:",
+    "answers": [
+      "od 2 % do 6 % wpływów brutto ze sprzedaży egzemplarzy tych utworów",
+      "od 3 % do 7 % wpływów brutto ze sprzedaży egzemplarzy tych utworów",
+      "od 5 % do 8 % wpływów brutto ze sprzedaży egzemplarzy tych utworów"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Autorskie prawa majątkowe:",
+    "answers": [
+      "mogą przejść na inne osoby tylko na podstawie umowy",
+      "mogą przejść na inne osoby w drodze dziedziczenia lub na podstawie umowy",
+      "mogą przejść na inne osoby tylko na podstawie dziedziczenia"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Nabywca autorskich praw majątkowych:",
+    "answers": [
+      "może przenieść je na inne osoby",
+      "nie może przenosić ich na inne osoby",
+      "może przenieść je na inne osoby, ale przez okres jednego roku"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Umowa o przeniesienie autorskich praw majątkowych lub umowa o korzystanie z utworu nazywana jest:",
+    "answers": [
+      "koncesją",
+      "licencją",
+      "homologacją"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Jeżeli autorskie prawa majątkowe jednego ze współtwórców miałyby przypaść Skarbowi Państwa jako spadkobiercy ustawowemu, część ta przechodzi na:",
+    "answers": [
+      "pozostałych przy życiu współtwórców lub ich następców prawnych, stosownie do wielkości ich udziałów",
+      "rzecz organizacji zbiorowego zarządzania prawami autorskimi",
+      "ministerstwa ds. kultury i sztuki"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Jeżeli z umowy nie wynika, że przeniesienie autorskich praw majątkowych lub udzielenie licencji nastąpiło nieodpłatnie:",
+    "answers": [
+      "twórcy nie przysługuje prawo do wynagrodzenia",
+      "twórcy przysługuje prawo do wynagrodzenia",
+      "twórcy może przysługiwać prawo do wynagrodzenia"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "W razie rażącej dysproporcji między wynagrodzeniem twórcy a korzyściami nabywcy autorskich praw majątkowych lub licencjobiorcy, twórca:",
+    "answers": [
+      "nie ma prawa żądać stosownego podwyższenia wynagrodzenia przez sąd",
+      "żądać stosownego podwyższenia wynagrodzenia przez organizację zbiorowego zarządzania prawami autorskimi",
+      "może żądać stosownego podwyższenia wynagrodzenia przez sąd"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "Mimo że w umowie postanowiono o przeniesieniu całości autorskich praw majątkowych twórca:",
+    "answers": [
+      "zachowuje wyłączne prawo zezwalania na wykonywanie zależnego prawa autorskiego",
+      "nie ma prawa zezwalać na wykonywanie zależnego prawa autorskiego",
+      "może zwrócić się do organizacji zbiorowego zarządzania prawami autorskimi z prośbą o rozstrzygnięcie"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Jednostronne obniżenie ceny sprzedaży egzemplarzy przed upływem roku od przystąpienia do rozpowszechniania utworu:",
+    "answers": [
+      "wpływa na wysokość wynagrodzenia",
+      "nie wpływa na wysokość wynagrodzenia",
+      "wpływa na wysokość wynagrodzenia, jeśli wynagrodzenie to przekracza 10.000 złotych"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Wytwarzanie określoną techniką egzemplarzy utworu, w tym techniką drukarską, reprograficzną, zapisu magnetycznego oraz techniką cyfrową, wprowadzanie do obrotu, użyczenie lub najem oryginału albo egzemplarzy, publiczne wykonanie, wystawienie, wyświetlenie, odtworzenie oraz nadawanie i remitowanie, a także publiczne udostępnianie utworu:",
+    "answers": [
+      "stanowią odrębne pola eksploatacji",
+      "nie stanowią odrębnych pól eksploatacji",
+      "stanowią odrębne pola wykorzystania"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Jeżeli umowa nie stanowi inaczej, przeniesienie własności egzemplarza utworu:",
+    "answers": [
+      "powoduje przejście autorskich praw majątkowych do utworu",
+      "powoduje przejście autorskich praw osobistych do utworu",
+      "nie powoduje przejścia autorskich praw majątkowych do utworu"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "Umowa o przeniesienie autorskich praw majątkowych:",
+    "answers": [
+      "nie wymaga zachowania formy pisemnej pod rygorem nieważności",
+      "wymaga zachowania formy pisemnej pod rygorem nieważności",
+      "może mieć formę ustną"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Twórca jest obowiązany dostarczyć utwór w terminie określonym w umowie, a jeżeli termin nie został oznaczony:",
+    "answers": [
+      "niezwłocznie po ukończeniu utworu",
+      "po upływie 1 miesiąca od ukończenia utworu",
+      "po upływie 3 miesięcy od ukończenia utworu"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Jeżeli twórca nie dostarczył utworu w przewidzianym terminie, zamawiający może wyznaczyć twórcy odpowiedni dodatkowy termin z zagrożeniem odstąpienia od umowy, a po jego bezskutecznym upływie:",
+    "answers": [
+      "nie może od umowy odstąpić",
+      "może od umowy odstąpić",
+      "może wyznaczyć kwotę odszkodowania"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Jeżeli zamówiony utwór ma usterki, zamawiający może wyznaczyć twórcy odpowiedni termin do ich usunięcia, a po jego bezskutecznym upływie może od umowy odstąpić lub:",
+    "answers": [
+      "żądać odpowiedniego obniżenia umówionego wynagrodzenia",
+      "żądać przeproszenia",
+      "żądać zadośćuczynienia za doznaną krzywdę"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Jeżeli twórca nie usunął w terminie usterek, a zamawiający odstąpił od umowy, to ma on prawo do części zapłaconego wynagrodzenia, jednak nie wyższego niż:",
+    "answers": [
+      "25 % umówionej ceny",
+      "30 % umówionej ceny",
+      "50 % umówionej ceny"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Jeżeli utwór ma wady prawne, zamawiający może od umowy odstąpić i:",
+    "answers": [
+      "żądać zadośćuczynienia",
+      "żądać naprawienia poniesionej szkody",
+      "żądać przeprosin"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Jeżeli zamawiający nie zawiadomi twórcy w terminie sześciu miesięcy od dostarczenia utworu o jego przyjęciu, nie przyjęciu lub uzależnieniu przyjęcia od dokonania określonych zmian w wyznaczonym w tym celu odpowiednim terminie, to uważa się, że utwór:",
+    "answers": [
+      "nie został przyjęty bez zastrzeżeń",
+      "został przyjęty z zastrzeżeniami",
+      "został przyjęty bez zastrzeżeń"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "Jeżeli nabywca autorskich praw majątkowych lub licencjobiorca, który zobowiązał się do rozpowszechniania utworu, nie przystąpi do rozpowszechniania w umówionym terminie, a w jego braku - w ciągu dwóch lat od przyjęcia utworu, twórca może odstąpić od umowy lub ją wypowiedzieć i domagać się naprawienia szkody po bezskutecznym upływie dodatkowego terminu, nie krótszego niż:",
+    "answers": [
+      "sześć miesięcy",
+      "1 rok",
+      "2 lata"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Jeżeli wskutek okoliczności, za które nabywca lub licencjobiorca ponosi odpowiedzialność, utwór nie został udostępniony publiczności, twórca może się domagać, zamiast naprawienia poniesionej szkody:",
+    "answers": [
+      "podwójnego wynagrodzenia w stosunku do określonego w umowie o rozpowszechnienie utworu",
+      "potrójnego wynagrodzenia w stosunku do określonego w umowie o rozpowszechnienie utworu",
+      "pięciokrotnego wynagrodzenia w stosunku do określonego w umowie o rozpowszechnienie utworu"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Jeżeli publiczne udostępnienie utworu następuje w nieodpowiedniej formie albo ze zmianami, którym twórca mógłby słusznie się sprzeciwić, może on po bezskutecznym wezwaniu do zaniechania naruszenia:",
+    "answers": [
+      "tylko odstąpić od umowy",
+      "odstąpić od umowy lub ją wypowiedzieć",
+      "tylko wypowiedzieć umowę"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Korzystający z utworu:",
+    "answers": [
+      "jest obowiązany umożliwić twórcy przed rozpowszechnieniem utworu przeprowadzenie nadzoru autorskiego",
+      "nie jest obowiązany umożliwić twórcy przed rozpowszechnieniem utworu przeprowadzenie nadzoru autorskiego",
+      "jest obowiązany umożliwić twórcy po rozpowszechnieniu utworu przeprowadzenie nadzoru autorskiego"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Jeżeli twórca nie przeprowadzi nadzoru autorskiego w odpowiednim terminie, uważa się, że:",
+    "answers": [
+      "nie wyraził zgody na rozpowszechnianie utworu",
+      "wyraził zgodę na rozpowszechnianie utworu",
+      "wyraził zgodę na przeniesienie praw autorskich osobistych"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Jeżeli umowa obejmuje sporządzenie egzemplarzy przeznaczonych do udostępnienia publiczności, twórcy należą się egzemplarze autorskie w liczbie:",
+    "answers": [
+      "100",
+      "200",
+      "określonej w umowie"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "Jeśli w umowie nie postanowiono inaczej, to umowa zobowiązująca do przeniesienia autorskich praw majątkowych przenosi na nabywcę, z chwilą przyjęcia utworu, prawo do wyłącznego korzystania z utworu:",
+    "answers": [
+      "na określonym w umowie polu eksploatacji",
+      "w pełnym zakresie",
+      "w małym zakresie"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "W braku wyraźnego postanowienia w umowie o przeniesieniu prawa, uważa się, że twórca:",
+    "answers": [
+      "przeniósł prawa majątkowe na nabywcę",
+      "udzielił licencji",
+      "przeniósł prawa osobiste na nabywcę"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Umowa licencyjna co do zasady uprawnia do korzystania z utworu w okresie:",
+    "answers": [
+      "pięciu lat na terytorium państwa, w którym licencjobiorca ma swoją siedzibę",
+      "pięciu lat na terytorium państw Unii Europejskiej",
+      "dziesięciu lat na terytorium państwa, w którym licencjobiorca ma swoją siedzibę"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Licencja wyłączna polega na:",
+    "answers": [
+      "nie ograniczaniu udzielenia przez twórcę upoważnienia innym osobom do korzystania z utworu na tym samym polu eksploatacji",
+      "wyłączeniu prawa korzystania z utworu",
+      "zastrzeżeniu wyłączności korzystania z utworu w określony sposób"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "Licencja niewyłączna polega na:",
+    "answers": [
+      "zastrzeżeniu wyłączności korzystania z utworu w określony sposób",
+      "nie ograniczaniu udzielenia przez twórcę upoważnienia innym osobom do korzystania z utworu na tym samym polu eksploatacji",
+      "nie wyłączeniu prawa korzystania z utworu"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Umowa licencyjna wyłączna:",
+    "answers": [
+      "wymaga zachowania formy pisemnej pod rygorem nieważności",
+      "nie wymaga zachowania formy pisemnej pod rygorem nieważności",
+      "może mieć formę ustną"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Jeżeli umowa nie stanowi inaczej, a licencji udzielono na czas nieoznaczony, twórca może ją wypowiedzieć z zachowaniem terminów umownych, a w ich braku:",
+    "answers": [
+      "na trzy miesiące naprzód, na koniec roku kalendarzowego",
+      "na pół roku naprzód, na koniec roku kalendarzowego",
+      "na rok naprzód, na koniec roku kalendarzowego"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Licencję udzieloną na okres dłuższy niż pięć lat uważa się, po upływie tego terminu, za udzieloną:",
+    "answers": [
+      "na czas oznaczony",
+      "na czas nieoznaczony",
+      "na czas określony"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Reżyser, operator obrazu, twórca adaptacji utworu literackiego, twórca stworzonych dla utworu audiowizualnego utworów muzycznych lub słowno-muzycznych oraz twórca scenariusza są:",
+    "answers": [
+      "twórcami utworu audiowizualnego",
+      "twórcami solidarnymi",
+      "współtwórcami utworu audiowizualnego"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "Producent utworu audiowizualnego nabywa na mocy umowy o stworzenie utworu albo umowy o wykorzystanie już istniejącego utworu:",
+    "answers": [
+      "wyłączne prawa majątkowe do eksploatacji tych utworów w ramach utworu audiowizualnego jako całości",
+      "niewyłączne prawa majątkowe do eksploatacji tych utworów w ramach utworu audiowizualnego jako całości",
+      "częściowe prawa majątkowe do eksploatacji tych utworów w ramach utworu audiowizualnego jako całości"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Główny reżyser, operator obrazu, twórcy scenariusza, twórcy innych utworów literackich lub muzycznych, które stworzone zostały do utworu audiowizualnego lub w nim wykorzystane, oraz artyści wykonawcy:",
+    "answers": [
+      "nie są uprawnieni do wynagrodzenia proporcjonalnego do wpływów z tytułu wyświetlania utworu audiowizualnego w kinach",
+      "są uprawnieni do wynagrodzenia proporcjonalnego do wpływów z tytułu wyświetlania utworu audiowizualnego w kinach",
+      "są uprawnieni do wynagrodzenia stałego z tytułu wyświetlania utworu audiowizualnego w kinach"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Programy komputerowe podlegają ochronie jak utwory:",
+    "answers": [
+      "muzyczne",
+      "literackie",
+      "plastyczne"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Prawa majątkowe do programu komputerowego stworzonego przez pracownika w wyniku wykonywania obowiązków ze stosunku pracy przysługują:",
+    "answers": [
+      "pracodawcy, o ile umowa nie stanowi inaczej",
+      "pracownikom, o ile umowa nie stanowi inaczej",
+      "organizacji zbiorowego zarządzania prawami autorskimi"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Jeżeli twórca nie wyraził innej woli, po jego śmierci z powództwem o ochronę autorskich praw osobistych zmarłego:",
+    "answers": [
+      "nie może wystąpić małżonek, a również zstępni, rodzice, rodzeństwo, zstępni rodzeństwa",
+      "może wystąpić małżonek, a w jego braku kolejno: zstępni, rodzice, rodzeństwo, zstępni rodzeństwa",
+      "może wystąpić małżonek, ale nie jego zstępni, rodzice, rodzeństwo, zstępni rodzeństwa"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Twórca może żądać od osoby, która naruszyła jego autorskie prawa majątkowe, zaniechania naruszenia, wydania uzyskanych korzyści albo:",
+    "answers": [
+      "zapłacenia w podwójnej, a w przypadku gdy naruszenie jest zawinione, potrójnej wysokości stosownego wynagrodzenia z chwili jego dochodzenia",
+      "zapłacenia w potrójnej, a w przypadku gdy naruszenie jest zawinione, pięciokrotnej wysokości stosownego wynagrodzenia z chwili jego dochodzenia",
+      "zapłacenia w pięciokrotnej, a w przypadku gdy naruszenie jest zawinione, siedmiokrotnej wysokości stosownego wynagrodzenia z chwili jego dochodzenia"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Sąd orzeka przepadek bezprawnie wytworzonych egzemplarzy utworów na rzecz:",
+    "answers": [
+      "Skarbu Państwa lub poszkodowanego",
+      "Skarbu Państwa",
+      "poszkodowanego"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Sąd może orzec przepadek przedmiotów służących do bezprawnego wytworzenia egzemplarzy utworów lub przedmiotów, przy których użyciu dokonano naruszenia na rzecz Skarbu Państwa lub przyznanie ich:",
+    "answers": [
+      "poszkodowanemu, na poczet należnego odszkodowania",
+      "organizacji zbiorowego zarządzania prawami autorskimi",
+      "Funduszowi Promocji Twórczości"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Rozpowszechnianie wizerunku wymaga zezwolenia osoby na nim przedstawionej. W braku wyraźnego zastrzeżenia zezwolenie:",
+    "answers": [
+      "jest wymagane, jeżeli osoba ta otrzymała umówioną zapłatę za pozowanie",
+      "nie jest wymagane, jeżeli osoba ta otrzymała umówioną zapłatę za pozowanie",
+      "nie jest wymagane, jeżeli osoba ta nie otrzymała umówionej zapłaty za pozowanie"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Rozpowszechnianie wizerunku osoby powszechnie znanej, jeżeli wizerunek wykonano w związku z pełnieniem przez nią funkcji publicznych, w szczególności politycznych, społecznych, zawodowych oraz osoby stanowiącej jedynie szczegół całości takiej jak zgromadzenie, krajobraz, publiczna impreza:",
+    "answers": [
+      "nie wymaga zezwolenia",
+      "wymaga zezwolenia",
+      "wymaga zezwolenia na piśmie"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Jeżeli osoba, do której korespondencja jest skierowana, nie wyraziła innej woli, rozpowszechnianie korespondencji, w okresie dwudziestu lat od jej śmierci, wymaga zezwolenia:",
+    "answers": [
+      "organizacji zbiorowego zarządzania prawami autorskimi",
+      "urzędu pocztowego",
+      "małżonka, a w jego braku kolejno zstępnych, rodziców lub rodzeństwa"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "Działania aktorów, recytatorów, dyrygentów, instrumentalistów, wokalistów, tancerzy i mimów oraz innych osób w sposób twórczy przyczyniających się do powstania wykonania są:",
+    "answers": [
+      "artystycznymi wykonaniami, które są prawami pokrewnymi",
+      "wykonaniami, które nie są prawami pokrewnymi",
+      "prawami sztuki"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Prawo do wynagrodzenia za korzystanie z artystycznego wykonania lub za rozporządzanie prawami do takiego wykonania określone w umowie albo przyznane w przepisach prawa wygasa z upływem:",
+    "answers": [
+      "pięćdziesięciu lat następujących po roku, w którym artystyczne wykonanie ustalono",
+      "sześćdziesięciu lat następujących po roku, w którym artystyczne wykonanie ustalono",
+      "siedemdziesięciu lat następujących po roku, w którym artystyczne wykonanie ustalono"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Jeżeli po ustaleniu artystycznego wykonania nastąpiła publikacja utrwalenia tego wykonania lub jego publiczne odtworzenie, okres ochrony liczy się:",
+    "answers": [
+      "mimo wszystko od chwili ustalenia",
+      "od chwili śmierci artysty wykonawcy",
+      "od tych zdarzeń, a gdy miały miejsce obydwa - od tego z nich, które miało miejsce wcześniej"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "Kierownik zespołu:",
+    "answers": [
+      "jest umocowany do reprezentowania praw do zespołowego artystycznego wykonania",
+      "nie jest umocowany do reprezentowania praw do zespołowego artystycznego wykonania",
+      "jest częściowo umocowany do reprezentowania praw do zespołowego artystycznego wykonania"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Fonogramem jest:",
+    "answers": [
+      "pierwsze utrwalenie sekwencji ruchomych obrazów, z dźwiękiem lub bez, niezależnie od tego, czy stanowi ono utwór audiowizualny",
+      "pierwsze utrwalenie warstwy dźwiękowej wykonania utworu albo innych zjawisk akustycznych",
+      "utwór audiowizualny"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Wideogramem jest:",
+    "answers": [
+      "pierwsze utrwalenie warstwy dźwiękowej wykonania utworu albo innych zjawisk akustycznych",
+      "utwór audialny",
+      "pierwsze utrwalenie sekwencji ruchomych obrazów, z dźwiękiem lub bez, niezależnie od tego, czy stanowi ono utwór audiowizualny"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "Prawo do rozporządzania i korzystania z fonogramu lub wideogramu gaśnie z upływem:",
+    "answers": [
+      "pięćdziesięciu lat następujących po roku, w którym fonogram lub wideogram został sporządzony",
+      "sześćdziesięciu lat następujących po roku, w którym fonogram lub wideogram został sporządzony",
+      "siedemdziesięciu lat następujących po roku, w którym fonogram lub wideogram został sporządzony"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Prawo do rozporządzania i korzystania ze nadań programów gaśnie z upływem:",
+    "answers": [
+      "pięćdziesięciu lat następujących po roku pierwszego nadania programu",
+      "sześćdziesięciu lat następujących po roku pierwszego nadania programu",
+      "siedemdziesięciu lat następujących po roku pierwszego nadania programu"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Wydawcy, który jako pierwszy w sposób zgodny z prawem opublikował lub w inny sposób rozpowszechnił utwór, którego czas ochrony już wygasł, a jego egzemplarze nie były jeszcze publicznie udostępniane, przysługuje wyłączne prawo do rozporządzania tym utworem i korzystania z niego na wszystkich polach eksploatacji przez okres:",
+    "answers": [
+      "dwudziestu pięciu lat od daty pierwszej publikacji lub rozpowszechnienia",
+      "trzydziestu lat od daty pierwszej publikacji lub rozpowszechnienia",
+      "pięćdziesięciu lat od daty pierwszej publikacji lub rozpowszechnienia"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Temu, kto po upływie czasu ochrony prawa autorskiego do utworu przygotował jego wydanie krytyczne lub naukowe, niebędące utworem, przysługuje wyłączne prawo do rozporządzania takim wydaniem i korzystania z niego przez okres:",
+    "answers": [
+      "trzydziestu lat od daty publikacji",
+      "czterdziestu lat od daty publikacji",
+      "pięćdziesięciu lat od daty publikacji"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Zezwolenia na zbiorowe zarządzanie prawami autorskimi udziela organizacjom dającym rękojmię należytego zarządzania powierzonymi prawami udziela:",
+    "answers": [
+      "Prezes Rady Ministrów",
+      "Prezes Funduszu Promocji Twórczości",
+      "minister właściwy do spraw kultury i ochrony dziedzictwa narodowego"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "Nadzór nad organizacjami zbiorowego zarządzania prawami autorskimi sprawuje:",
+    "answers": [
+      "Prezes Rady Ministrów",
+      "minister właściwy do spraw kultury i ochrony dziedzictwa narodowego",
+      "Prezes Funduszu Promocji Twórczości"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Organizacja zbiorowego zarządzania prawami autorskimi:",
+    "answers": [
+      "nie może, bez ważnych powodów, odmówić podjęcia zarządzania prawem autorskim lub prawem pokrewnym",
+      "może, bez ważnych powodów, odmówić podjęcia zarządzania prawem autorskim lub prawem pokrewnym",
+      "może, bez ważnych powodów, odmówić podjęcia zarządzania tylko prawem autorskim"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Organizacja zbiorowego zarządzania prawami autorskimi:",
+    "answers": [
+      "może, bez ważnych powodów, odmówić zgody na korzystanie z utworów lub artystycznych wykonań w granicach wykonywanego przez siebie zarządu",
+      "nie może, bez ważnych powodów, odmówić zgody na korzystanie z utworów lub artystycznych wykonań w granicach wykonywanego przez siebie zarządu",
+      "może, bez ważnych powodów, odmówić zgody na korzystanie tylko z utworów"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Jeżeli na danym polu eksploatacji działa więcej niż jedna organizacja zbiorowego zarządzania, organizacją właściwą w rozumieniu ustawy jest organizacja, do której należy twórca lub artysta wykonawca, a gdy twórca lub artysta wykonawca nie należy do żadnej organizacji albo nie ujawnił swojego autorstwa - organizacja wskazana przez:",
+    "answers": [
+      "Komisję Prawa Autorskiego",
+      "ministra właściwego do spraw kultury i ochrony dziedzictwa narodowego",
+      "Prezesa Rady Ministrów"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Od orzeczeń Komisji w sprawie wskazania organizacji zbiorowego zarządzania służy odwołanie do:",
+    "answers": [
+      "Naczelnego Sądu Administracyjnego",
+      "Ministra właściwego do spraw kultury i ochrony dziedzictwa narodowego",
+      "Prezesa Rady Ministrów"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Środki Funduszu Promocji Twórczości przeznacza się na:",
+    "answers": [
+      "stypendia dla twórców, pokrycie w całości lub w części kosztów wydań utworów o szczególnym znaczeniu dla kultury i nauki polskiej oraz wydań dla niewidomych i pomoc socjalną dla twórców",
+      "tylko stypendia dla twórców",
+      "tylko pomoc socjalną dla twórców"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Funduszem Promocji Twórczości dysponuje:",
+    "answers": [
+      "organizacja zbiorowego zarządzania prawami autorskimi",
+      "Rada Ministrów",
+      "Minister właściwy do spraw kultury i ochrony dziedzictwa narodowego"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "Ściganie przestępstw określonych w ustawie o prawie autorskim i prawach pokrewnych następuje:",
+    "answers": [
+      "z oskarżenia publicznego bez konieczności złożenia wniosku pokrzywdzonego",
+      "na wniosek pokrzywdzonego",
+      "z oskarżenia prywatnego"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Patentu udziela się na:",
+    "answers": [
+      "wynalazki",
+      "wynalazki, wzory przemysłowe, wzory użytkowe i znaki towarowe",
+      "wynalazki i układy scalone"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Patenty udzielane są na wynalazki, które:",
+    "answers": [
+      "są nowe, posiadają poziom wynalazczy, ale nie muszą nadawać się do przemysłowego stosowania",
+      "są nowe, posiadają poziom wynalazczy i nadają się do przemysłowego stosowania",
+      "posiadają poziom wynalazczy, ale nie muszą nadawać się do przemysłowego stosowania"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Patenty udzielane są:",
+    "answers": [
+      "w wybranych dziedzinach techniki",
+      "w dziedzinie techniki objętej wykazem Ministra Gospodarki",
+      "bez względu na dziedzinę techniki"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "Rejestr patentowy prowadzi:",
+    "answers": [
+      "Urząd Patentowy RP",
+      "Ministerstwo Gospodarki",
+      "Sąd Gospodarczy"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Odkrycia, teorie naukowe i metody matematyczne:",
+    "answers": [
+      "uważa się za wynalazki",
+      "nie uważa się za wynalazki",
+      "uważa się za wynalazki w ograniczonym zakresie"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Patentów nie udziela się na:",
+    "answers": [
+      "sposoby leczenia ludzi i zwierząt",
+      "wynalazki w dziedzinie sportu",
+      "wynalazki w dziedzinie twórczości artystycznej"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Zakres przedmiotowy patentu określają zastrzeżenia patentowe zawarte w:",
+    "answers": [
+      "certyfikacie patentowym",
+      "opisie patentowym",
+      "karcie opisowej patentu"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Czas trwania patentu wynosi:",
+    "answers": [
+      "10 lat od dnia zgłoszenia",
+      "20 lat od dnia zgłoszenia",
+      "30 lat od dnia zgłoszenia"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Udzielone patenty podlegają wpisowi:",
+    "answers": [
+      "do rejestru patentowego",
+      "na listę patentów",
+      "do zasobów patentowych"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Patent jest:",
+    "answers": [
+      "niedziedziczny",
+      "nieograniczony w czasie",
+      "zbywalny"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "Aby wynalazek był chroniony w krajach europejskich należy dokonać zgłoszenia do:",
+    "answers": [
+      "Urzędu Patentowego Unii Europejskiej",
+      "Europejskiego Urzędu Patentowego",
+      "Europejskiego Urzędu Patentów i Praw Przemysłowych"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Aby wynalazek był chroniony poza krajami europejskimi należy dokonać zgłoszenia międzynarodowego za pośrednictwem:",
+    "answers": [
+      "Urzędu Patentowego Unii Europejskiej",
+      "Europejskiego Urzędu Patentów i Praw Przemysłowych",
+      "Europejskiego Urzędu Patentowego"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "Na wzór użytkowy organ rejestrowy udziela:",
+    "answers": [
+      "prawa ochronnego",
+      "patentu",
+      "licencji"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Aby wzór użytkowy mógł być wpisany do właściwego rejestru:",
+    "answers": [
+      "nie musi mieć nowego rozwiązania",
+      "musi mieć nowe i użyteczne rozwiązanie",
+      "nie musi mieć użytecznego rozwiązania"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Czas trwania prawa ochronnego na wzór użytkowy wynosi:",
+    "answers": [
+      "10 lat od dnia zgłoszenia",
+      "15 lat od dnia zgłoszenia",
+      "20 lat od dnia zgłoszenia"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Zakres przedmiotowy prawa ochronnego określają zastrzeżenia ochronne zawarte w opisie:",
+    "answers": [
+      "ochronnym wzoru użytkowego",
+      "patentowym wzoru użytkowego",
+      "rejestrowym wzoru patentowego"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Aby wzór przemysłowy mógł być wpisany do właściwego rejestru:",
+    "answers": [
+      "nie musi być nowy",
+      "musi być nowy i mieć indywidualny charakter postaci",
+      "nie musi mieć indywidualnego charakteru postaci"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Na wzór przemysłowy udziela się:",
+    "answers": [
+      "prawa z rejestracji",
+      "prawa ochronnego",
+      "patentu"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Czas trwania prawa z rejestracji wzoru przemysłowego udziela się na:",
+    "answers": [
+      "15 lat od dnia zgłoszenia",
+      "25 lat od dnia zgłoszenia",
+      "30 lat od dnia zgłoszenia"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Aby wzory użytkowe lub przemysłowe były chroniony w krajach europejskimi należy dokonać zgłoszenia w:",
+    "answers": [
+      "Urzędzie Harmonizacji Rynku Wewnętrznego (OHIM)",
+      "Europejskim Urzędzie Patentowym",
+      "Komisji Europejskiej"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Znakiem towarowym mogą być:",
+    "answers": [
+      "godło i barwy narodowe",
+      "oznaczenia przedstawione w sposób graficzny",
+      "herby miejscowości i województw"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Na znak towarowy udziela się:",
+    "answers": [
+      "patentu",
+      "licencji",
+      "prawa ochronnego"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "Czas trwania prawa ochronnego na znak towarowy wynosi:",
+    "answers": [
+      "10 lat od dnia zgłoszenia",
+      "15 lat od dnia zgłoszenia",
+      "20 lat od dnia zgłoszenia"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Na oznaczenie geograficzne udziela się:",
+    "answers": [
+      "prawa ochronnego",
+      "prawa z rejestracji",
+      "patentu"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Prawa z rejestracji na oznaczenie geograficzne udziela:",
+    "answers": [
+      "Minister Gospodarki",
+      "Rada Ministrów",
+      "Urząd Patentowy RP"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "Aby oznaczenie geograficzne było chronione w Unii Europejskiej należy dokonać zgłoszenia do:",
+    "answers": [
+      "Urzędu Harmonizacji Rynku Wewnętrznego (OHIM)",
+      "Komisji Europejskiej",
+      "Europejskiego Urzędu Patentowego"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Ochrona oznaczenia geograficznego trwa:",
+    "answers": [
+      "10 lat od dnia zgłoszenia",
+      "15 lat od dnia zgłoszenia",
+      "bezterminowo od dnia zgłoszenia"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "Na topografię układów scalonych udziela się:",
+    "answers": [
+      "prawa z rejestracji",
+      "prawa ochronnego",
+      "patentu"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Prawa z rejestracji na topografię układów scalonych udziela:",
+    "answers": [
+      "Minister Gospodarki",
+      "Urząd Patentowy RP",
+      "Rada Ministrów"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Nie udziela się prawa z rejestracji topografii, jeżeli była ona wykorzystywana w celach handlowych w okresie dłuższym niż:",
+    "answers": [
+      "1 rok",
+      "2 lata",
+      "3 lata"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Nie może być udzielone prawo z rejestracji jeżeli od jej utrwalenia w dowolnej formie minęło:",
+    "answers": [
+      "5 lat",
+      "10 lat",
+      "15 lat"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Ochrona topografii ustaje po upływie:",
+    "answers": [
+      "10 lat od końca roku kalendarzowego, w którym dokonano zgłoszenia",
+      "15 lat od końca roku kalendarzowego, w którym dokonano zgłoszenia",
+      "20 lat od końca roku kalendarzowego, w którym dokonano zgłoszenia"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Własność przemysłowa objęta jest:",
+    "answers": [
+      "ochroną cywilnoprawną i karnoprawną",
+      "tylko ochroną cywilnoprawną",
+      "tylko ochroną karnoprawną"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Ściganie większości przestępstw określonych w prawie własności przemysłowej następuje:",
+    "answers": [
+      "z oskarżenia prywatnego",
+      "na wniosek pokrzywdzonego",
+      "z oskarżenie publicznego bez konieczności wniosku pokrzywdzonego"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Czynem nieuczciwej konkurencji jest działanie sprzeczne z prawem lub dobrymi obyczajami naruszające interes:",
+    "answers": [
+      "przedsiębiorcy lub klienta",
+      "tylko przedsiębiorcy",
+      "tylko klienta"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Wypowiedź, która, zachęcając do nabywania towarów i usług, sprawia wrażenia neutralnej wypowiedzi:",
+    "answers": [
+      "nie jest czynem nieuczciwej konkurencji",
+      "jest tylko po części czynem nieuczciwej konkurencji",
+      "jest czynem nieuczciwej konkurencji"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "Pojęcie sprzedaży lawinowej dotyczy:",
+    "answers": [
+      "składania obietnicy uzyskania korzyści materialnych nabywcom w zamian za nakłonienie innych osób do dokonania takich samych transakcji",
+      "stosowania cen niższych od kosztów wytworzenia",
+      "sprzedaż produktów w cenie równej kosztom wytworzenia"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Ściganie przestępstw określonych w ustawie o zwalczaniu nieuczciwej konkurencji odbywa się:",
+    "answers": [
+      "z oskarżenia prywatnego",
+      "na wniosek pokrzywdzonego",
+      "z oskarżenie publicznego bez konieczności wniosku pokrzywdzonego"
+    ],
+    "correct": 1
+  }
+];
+           
+        
+let timer;
+        let timeLeft = 900; // 15 minutes in seconds
+
+        function startTest() {
+            // Ukrycie przycisku startowego
+            document.getElementById('start-container').style.display = 'none';
+            
+            // Pokazanie elementów testu
+            document.getElementById('question-container').style.display = 'block';
+            document.getElementById('next-btn').style.display = 'inline-block';
+            document.getElementById('restart-btn').style.display = 'none';
+            document.getElementById('score').textContent = '';
+            document.getElementById('result-container').style.display = 'none';
+            document.getElementById('result-list').style.display = 'none';
+            document.getElementById('show-answers-btn').style.display = 'inline-block';
+
+            // Inicjalizacja zmiennych
+            currentQuestionIndex = 0;
+            score = 0;
+            answeredQuestions = [];
+            answersLog = [];
+            timeLeft = 900; // Reset timer
+
+            // Rozpoczęcie testu i pokazanie pierwszego pytania
+            nextQuestion();
+
+            // Start timer
+            startTimer();
+        }
+
+        function startTimer() {
+            timer = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    // Handle time up scenario here
+                    alert('Czas minął!');
+                    showResults();
+                } else {
+                    const minutes = Math.floor(timeLeft / 60);
+                    const seconds = timeLeft % 60;
+                    document.getElementById('timer').innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                    timeLeft--;
+                }
+            }, 1000);
+        }
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answeredQuestions = [];
+        let answersLog = [];
+
+        // Funkcja losująca pytanie i przechodząca do kolejnego
+        function nextQuestion() {
+            if (answeredQuestions.length === 50) {
+                // Po odpowiedzeniu na 50 pytań, pokazujemy wyniki
+                showResults();
+                return;
+            }
+
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * questions.length);
+            } while (answeredQuestions.includes(randomIndex));
+
+            answeredQuestions.push(randomIndex);
+            const question = questions[randomIndex];
+
+            // Wyświetlanie pytania
+            document.getElementById('question-text').textContent = question.question;
+
+            const answersContainer = document.getElementById('answers-container');
+            answersContainer.innerHTML = ''; // Czyszczenie poprzednich odpowiedzi
+
+            question.answers.forEach((answer, index) => {
+                const button = document.createElement('button');
+                button.textContent = answer;
+                button.onclick = () => checkAnswer(index, randomIndex);
+                answersContainer.appendChild(button);
+            });
+        }
+
+        // Funkcja sprawdzająca odpowiedź
+        function checkAnswer(selectedIndex, questionIndex) {
+            const question = questions[questionIndex];
+            const isCorrect = selectedIndex === question.correct;
+            if (isCorrect) {
+                score++;
+            }
+
+            // Zapisujemy odpowiedź i stan odpowiedzi (poprawna/niepoprawna)
+            answersLog.push({
+                question: question.question,
+                selectedAnswer: question.answers[selectedIndex],
+                correctAnswer: question.answers[question.correct],
+                isCorrect: isCorrect
+            });
+
+            // Po zaznaczeniu odpowiedzi przechodzimy do kolejnego pytania
+            nextQuestion();
+        }
+
+        // Funkcja pokazująca wynik
+        function showResults() {
+            clearInterval(timer);
+
+            const percentage = (score / 50) * 100; // Zmieniamy na 50, ponieważ jest 50 pytań
+            document.getElementById('score').textContent = `Twój wynik: ${percentage.toFixed(2)}%`;
+            
+            if (percentage >= 90) {
+                alert('Gratulacje! Zdałeś test!');
+            } else {
+                alert('Niestety, nie zdałeś testu.');
+            }
+
+            document.getElementById('next-btn').style.display = 'none';
+            document.getElementById('restart-btn').style.display = 'inline-block';
+            document.getElementById('result-container').style.display = 'block';
+        }
+
+        // Funkcja wyświetlająca odpowiedzi
+        function showAnswers() {
+            document.getElementById('show-answers-btn').style.display = 'none';
+            document.getElementById('result-list').style.display = 'block';
+
+            // Wyświetlanie szczegółowego podsumowania
+            const resultList = document.getElementById('result-list');
+            resultList.innerHTML = ''; // Czyszczenie poprzednich wyników
+            answersLog.forEach(log => {
+                const li = document.createElement('li');
+                li.classList.add('answer');
+                li.innerHTML = `<strong>${log.question}</strong><br>
+                               Twoja odpowiedź: <span class="${log.isCorrect ? 'correct' : 'incorrect'}">${log.selectedAnswer}</span><br>
+                               Poprawna odpowiedź: <span class="correct">${log.correctAnswer}</span><br><br>`;
+                resultList.appendChild(li);
+            });
+        }
+
+        // Funkcja restartująca test
+        function restartTest() {
+            clearInterval(timer);
+            startTest();
+        }
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+[
+    {
+        "question": "Co to jest JavaScript?",
+        "answers": [
+            "Język programowania",
+            "Program graficzny",
+            "System operacyjny"
+        ],
+        "correct": 0
+    },
+    {
+        "question": "Kto stworzył język Python?",
+        "answers": [
+            "Guido van Rossum",
+            "Bjarne Stroustrup",
+            "Dennis Ritchie"
+        ],
+        "correct": 0
+    },
+    // Dodaj więcej pytań
+]
